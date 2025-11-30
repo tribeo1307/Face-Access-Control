@@ -1,1 +1,28 @@
-# Python dependencies
+# Face Access Control System - Dependencies
+# Python 3.11+
+
+# Core Computer Vision
+opencv-python>=4.8.0
+numpy<2.0  # CRITICAL: Must be < 2.0 for dlib compatibility
+
+# Face Recognition (OpenFace)
+face-recognition>=1.2.3
+dlib>=19.24.1
+
+# Image Processing
+Pillow>=10.0.0
+
+# GUI (built-in with Python)
+# tkinter - No installation needed
+
+# Data Handling
+scipy>=1.11.0  # Required by face_recognition
+
+# Optional: Performance
+# cmake>=3.25.0  # Only needed if building dlib from source
+# wheel>=0.40.0  # For pre-built packages
+
+# Development Tools (optional)
+# pytest>=7.4.0
+# black>=23.0.0
+# flake8>=6.0.0
