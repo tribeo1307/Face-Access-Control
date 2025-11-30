@@ -1,1 +1,0 @@
-# FaceNet face recognition module
