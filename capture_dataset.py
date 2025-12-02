@@ -50,9 +50,9 @@ def capture_images(name: str, num_images: int = 20, auto_detect: bool = True):
         detector = FaceDetector(method='haar')  # Haar nhanh hơn cho capture
     
     count = 0
-    
+    count_images = 0
     try:
-        while count < num_images:
+        while count_images < num_images:
             ret, frame = camera.read()
             if not ret:
                 print("✗ Failed to read frame")
@@ -97,14 +97,15 @@ def capture_images(name: str, num_images: int = 20, auto_detect: bool = True):
             # SPACE để chụp
             if key == ord(' '):
                 if can_capture:
-                    if os.path.exists(os.path.join(user_dir, f"{count+1:03d}.jpg")):
-                        count += 1
+                    # Lấy chỉ số index của ảnh cuối cùng để làm số index cho ảnh tiếp theo
+                    count = len(os.listdir(user_dir))
+
                     filename = os.path.join(user_dir, f"{count+1:03d}.jpg")
                     cv2.imwrite(filename, frame)
                     print(f"✓ Saved: {filename}")
-                    count += 1
                 else:
                     print("✗ Cannot capture - face detection failed")
+                count_images += 1
             
             # Q để thoát
             elif key == ord('q'):
