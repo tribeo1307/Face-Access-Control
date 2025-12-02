@@ -68,24 +68,9 @@ LBPH_CONFIDENCE_THRESHOLD = 90.0  # Tăng từ 50.0 để giảm false negatives
 # Kích thước ảnh face cho LBPH
 LBPH_FACE_SIZE = (200, 200)
 
-# ==================== CẤU HÌNH FACENET RECOGNITION ====================
-
-# FaceNet Model path
-FACENET_MODEL_PATH = os.path.join(MODELS_DIR, "facenet_keras.h5")
-FACENET_EMBEDDINGS_PATH = os.path.join(MODELS_DIR, "embeddings.pickle")
-
-# FaceNet Parameters
-FACENET_INPUT_SIZE = (160, 160)  # FaceNet yêu cầu input 160x160
-FACENET_EMBEDDING_SIZE = 128      # FaceNet tạo vector 128 chiều
-
-# FaceNet Recognition threshold
-# Distance càng THẤP càng GIỐNG (0 = identical)
-# Nếu distance < threshold → HỢP LỆ
-FACENET_DISTANCE_THRESHOLD = 0.6
-
 # ==================== CẤU HÌNH RECOGNITION CHUNG ====================
 
-# Phương pháp recognition mặc định: 'lbph' hoặc 'facenet'
+# Phương pháp recognition mặc định: 'lbph', 'openface', 'sface'
 DEFAULT_RECOGNITION_METHOD = 'lbph'
 
 # Tên hiển thị cho unknown person

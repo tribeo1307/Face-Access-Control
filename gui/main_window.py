@@ -45,6 +45,7 @@ class MainWindow:
         self.detector: Optional[FaceDetector] = None
         self.recognizer_lbph: Optional[LBPHRecognizer] = None
         self.recognizer_openface: Optional[OpenFaceRecognizer] = None
+        self.recognizer_sface: Optional[SFaceRecognizer] = None
         self.database = Database()
         
         # State
@@ -117,6 +118,11 @@ class MainWindow:
                                        variable=self.current_method, value='openface',
                                        command=self._on_method_change)
         openface_radio.pack(anchor=tk.W)
+
+        sface_radio = ttk.Radiobutton(control_frame, text="SFace (Accurate)", 
+                                       variable=self.current_method, value='sface',
+                                       command=self._on_method_change)
+        sface_radio.pack(anchor=tk.W)
         
         if not FACE_RECOGNITION_AVAILABLE:
             openface_radio.config(state='disabled')
@@ -221,7 +227,8 @@ class MainWindow:
             if not self.recognizer_lbph.is_model_trained():
                 messagebox.showerror("Error", "LBPH model not trained!\nPlease run train_lbph.py first.")
                 return
-        elif method == 'openface':
+
+        if method == 'openface':
             if not FACE_RECOGNITION_AVAILABLE:
                 messagebox.showerror("Error", "face_recognition library not available!")
                 return
@@ -229,6 +236,15 @@ class MainWindow:
                 messagebox.showerror("Error", "OpenFace encodings not trained!\nPlease run train_openface.py first.")
                 return
         
+        elif method == 'sface':
+            if not SFACE_RECOGNITION_AVAILABLE:
+                messagebox.showerror("Error", "sface library not available!")
+                return
+            if not self.recognizer_sface.is_model_trained():
+                messagebox.showerror("Error", "SFace model not trained!\nPlease run train_sface.py first.")
+                return
+            
+
         # Mở camera
         if not self.camera.open():
             messagebox.showerror("Error", "Failed to open camera!")
