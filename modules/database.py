@@ -122,6 +122,159 @@ class Database:
             print(f"[Database] ERROR loading LBPH model: {e}")
             return None, None
 
+    # ==================== OPENFACE EMBEDDINGS ====================
+
+    def save_openface_embeddings(
+        self, names: List[str], encodings: List[np.ndarray], embeddings_path: str = None
+    ) -> bool:
+        """
+        Lưu OpenFace encodings (face embeddings)
+
+        Args:
+            names: List tên người (có thể trùng lặp)
+            encodings: List face encodings (128-d vectors)
+            embeddings_path: Đường dẫn lưu embeddings (mặc định từ config)
+
+        Returns:
+            bool: True nếu lưu thành công
+        """
+        try:
+            embeddings_path = embeddings_path or config.OPENFACE_EMBEDDINGS_PATH
+
+            # Lưu dưới dạng pickle
+            data = {"names": names, "encodings": encodings}
+
+            with open(embeddings_path, "wb") as f:
+                pickle.dump(data, f)
+
+            if config.DEBUG:
+                print(f"[Database] OpenFace embeddings saved to: {embeddings_path}")
+                print(f"[Database] Total encodings: {len(encodings)}")
+                print(f"[Database] Unique users: {len(set(names))}")
+
+            return True
+
+        except Exception as e:
+            print(f"[Database] ERROR saving OpenFace embeddings: {e}")
+            return False
+
+    def load_openface_embeddings(
+        self, embeddings_path: str = None
+    ) -> Tuple[Optional[List[str]], Optional[List[np.ndarray]]]:
+        """
+        Load OpenFace encodings từ file
+
+        Args:
+            embeddings_path: Đường dẫn embeddings file (mặc định từ config)
+
+        Returns:
+            Tuple[names, encodings]: (None, None) nếu thất bại
+        """
+        try:
+            embeddings_path = embeddings_path or config.OPENFACE_EMBEDDINGS_PATH
+
+            if not os.path.exists(embeddings_path):
+                print(
+                    f"[Database] ERROR: OpenFace embeddings not found: {embeddings_path}"
+                )
+                return None, None
+
+            # Load từ pickle
+            with open(embeddings_path, "rb") as f:
+                data = pickle.load(f)
+
+            names = data["names"]
+            encodings = data["encodings"]
+
+            if config.DEBUG:
+                print(f"[Database] OpenFace embeddings loaded from: {embeddings_path}")
+                print(f"[Database] Total encodings: {len(encodings)}")
+                print(f"[Database] Unique users: {len(set(names))}")
+
+            return names, encodings
+
+        except Exception as e:
+            print(f"[Database] ERROR loading OpenFace embeddings: {e}")
+            return None, None
+
+    # ==================== FACENET EMBEDDINGS ====================
+
+    def save_facenet_embeddings(
+        self,
+        names: List[str],
+        embeddings: List[np.ndarray],
+        embeddings_path: str = None,
+    ) -> bool:
+        """
+        Lưu FaceNet embeddings
+
+        Args:
+            names: List tên người (có thể trùng lặp)
+            embeddings: List face embeddings
+            embeddings_path: Đường dẫn lưu embeddings (mặc định từ config)
+
+        Returns:
+            bool: True nếu lưu thành công
+        """
+        try:
+            embeddings_path = embeddings_path or config.FACENET_EMBEDDINGS_PATH
+
+            # Lưu dưới dạng pickle
+            data = {"names": names, "embeddings": embeddings}
+
+            with open(embeddings_path, "wb") as f:
+                pickle.dump(data, f)
+
+            if config.DEBUG:
+                print(f"[Database] FaceNet embeddings saved to: {embeddings_path}")
+                print(f"[Database] Total embeddings: {len(embeddings)}")
+                print(f"[Database] Unique users: {len(set(names))}")
+
+            return True
+
+        except Exception as e:
+            print(f"[Database] ERROR saving FaceNet embeddings: {e}")
+            return False
+
+    def load_facenet_embeddings(
+        self, embeddings_path: str = None
+    ) -> Tuple[Optional[List[str]], Optional[List[np.ndarray]]]:
+        """
+        Load FaceNet embeddings từ file
+
+        Args:
+            embeddings_path: Đường dẫn embeddings file (mặc định từ config)
+
+        Returns:
+            Tuple[names, embeddings]: (None, None) nếu thất bại
+        """
+        try:
+            embeddings_path = embeddings_path or config.FACENET_EMBEDDINGS_PATH
+
+            if not os.path.exists(embeddings_path):
+                print(
+                    f"[Database] ERROR: FaceNet embeddings not found: {embeddings_path}"
+                )
+                return None, None
+
+            # Load từ pickle
+            with open(embeddings_path, "rb") as f:
+                data = pickle.load(f)
+
+            names = data["names"]
+            embeddings = data["embeddings"]
+
+            if config.DEBUG:
+                print(f"[Database] FaceNet embeddings loaded from: {embeddings_path}")
+                print(f"[Database] Total embeddings: {len(embeddings)}")
+                print(f"[Database] Unique users: {len(set(names))}")
+
+            return names, embeddings
+
+        except Exception as e:
+            print(f"[Database] ERROR loading FaceNet embeddings: {e}")
+            return None, None
+
     # ==================== ACCESS LOGS ====================
 
     def log_access(
@@ -249,7 +402,7 @@ class Database:
         Lấy danh sách users đã đăng ký
 
         Args:
-            method: 'lbph' hoặc 'facenet'
+            method: 'lbph', 'openface', 'sface', hoặc 'facenet'
 
         Returns:
             List[str]: Danh sách tên users
@@ -259,6 +412,14 @@ class Database:
                 _, label_mapping = self.load_lbph_model()
                 if label_mapping:
                     return list(label_mapping.values())
+            elif method == "openface":
+                names, _ = self.load_openface_embeddings()
+                if names:
+                    return list(set(names))  # Unique names
+            elif method == "sface":
+                names, _ = self.load_openface_embeddings()  # SFace uses same format
+                if names:
+                    return list(set(names))  # Unique names
             elif method == "facenet":
                 names, _ = self.load_facenet_embeddings()
                 if names:
@@ -275,7 +436,7 @@ class Database:
         Kiểm tra model đã tồn tại chưa
 
         Args:
-            method: 'lbph' hoặc 'facenet'
+            method: 'lbph', 'openface', 'sface', hoặc 'facenet'
 
         Returns:
             bool: True nếu model tồn tại
@@ -284,6 +445,12 @@ class Database:
             return os.path.exists(config.LBPH_MODEL_PATH) and os.path.exists(
                 config.LBPH_MAPPING_PATH
             )
+        elif method == "openface":
+            return os.path.exists(config.OPENFACE_EMBEDDINGS_PATH)
+        elif method == "sface":
+            return os.path.exists(
+                config.OPENFACE_EMBEDDINGS_PATH
+            )  # SFace uses same format
         elif method == "facenet":
             return os.path.exists(config.FACENET_EMBEDDINGS_PATH)
 
