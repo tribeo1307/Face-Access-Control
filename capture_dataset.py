@@ -164,17 +164,4 @@ def main():
     print("\n" + "=" * 60)
     print("STARTING CAPTURE...")
     print("=" * 60)
-    
-    if capture_images(name, num_images, auto_detect):
-        print("\n✓ Dataset capture completed successfully!")
-        print("\nNext steps:")
-        print("  1. Review captured images")
-        print("  2. Run: python check_dataset.py")
-        print("  3. Run: python train_lbph.py or python train_facenet.py")
-    else:
-        print("\n✗ Dataset capture incomplete")
-        print(f"Minimum {config.MIN_IMAGES_PER_PERSON} images required per user")
-
-
-if __name__ == "__main__":
     main()

@@ -142,26 +142,9 @@ def main():
     
     for name, path in all_models.items():
         if os.path.exists(path):
-            size = os.path.getsize(path) / (1024 * 1024)  # MB
-            print(f"✓ {name}: {path} ({size:.2f} MB)")
+            print(f"✓ {name} - {path}")
         else:
-            print(f"✗ {name}: {path} (MISSING)")
-    
-    print("\n" + "=" * 60)
-    
-    # Hướng dẫn tiếp theo
-    if not os.path.exists('models/facenet_keras.h5'):
-        print("\nNEXT STEPS:")
-        print("1. Download FaceNet model manually (see MODELS_DOWNLOAD.md)")
-        print("2. Place facenet_keras.h5 in models/ directory")
-        print("3. Run: python train_lbph.py or python train_facenet.py")
-    else:
-        print("\n✓ All models ready!")
-        print("Next steps:")
-        print("  - Train LBPH: python train_lbph.py")
-        print("  - Train OpenFace: python train_openface.py")
-        print("  - Train SFace: python train_sface.py")
-    
+            print(f"✗ {name} - {path} (MISSING)")
     print("=" * 60)
 
 

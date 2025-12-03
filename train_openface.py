@@ -90,7 +90,7 @@ def main():
         print("✓ TRAINING COMPLETED SUCCESSFULLY!")
         print("=" * 60)
         print(f"\nEncodings saved to:")
-        print(f"  - {config.FACENET_EMBEDDINGS_PATH}")
+        print(f"  - {config.OPENFACE_MODEL_PATH}")
         print(f"\nTrained users: {recognizer.get_user_list()}")
         print(f"Total encodings: {len(recognizer.known_encodings)}")
         print("\nYou can now run the main application:")

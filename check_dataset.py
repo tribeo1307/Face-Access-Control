@@ -111,19 +111,6 @@ def check_dataset(dataset_dir: str = None):
         print("Some users don't have enough images")
         print("\nYou can proceed with training, but consider adding more images")
         return True
-    else:
-        print("✓ DATASET READY")
-        print("=" * 60)
-        print("\nAll users have sufficient images!")
-        print("\nNext steps:")
-        print("  1. Train LBPH: python train_lbph.py")
-        print("  2. Train FaceNet: python train_facenet.py")
-        return True
-
-
-def show_dataset_stats(dataset_dir: str = None):
-    """Hiển thị thống kê chi tiết dataset"""
-    dataset_dir = dataset_dir or config.DATASET_DIR
     
     if not os.path.exists(dataset_dir):
         return

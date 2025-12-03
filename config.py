@@ -68,9 +68,28 @@ LBPH_CONFIDENCE_THRESHOLD = 90.0  # Tăng từ 50.0 để giảm false negatives
 # Kích thước ảnh face cho LBPH
 LBPH_FACE_SIZE = (200, 200)
 
+# ==================== CẤU HÌNH OPENFACE RECOGNITION ====================
+
+# OpenFace uses face_recognition library (dlib-based)
+# No separate model file needed - uses built-in dlib models
+OPENFACE_EMBEDDINGS_PATH = os.path.join(MODELS_DIR, "embeddings.pickle")
+
+# OpenFace Parameters  
+OPENFACE_DISTANCE_THRESHOLD = 0.6   # Distance threshold (lower = stricter)
+
+# ==================== CẤU HÌNH SFACE RECOGNITION ====================
+
+# SFace Model paths
+SFACE_MODEL_PATH = os.path.join(MODELS_DIR, "face_recognition_sface_2021dec.onnx")
+YUNET_MODEL_PATH = os.path.join(MODELS_DIR, "face_detection_yunet_2023mar.onnx")
+
+# SFace Parameters
+SFACE_EMBEDDING_SIZE = 512       # SFace tạo vector 512 chiều
+SFACE_DISTANCE_THRESHOLD = 0.4   # Cosine distance threshold (lower = stricter)
+
 # ==================== CẤU HÌNH RECOGNITION CHUNG ====================
 
-# Phương pháp recognition mặc định: 'lbph', 'openface', 'sface'
+# Phương pháp recognition mặc định: 'lbph', 'openface', hoặc 'sface'
 DEFAULT_RECOGNITION_METHOD = 'lbph'
 
 # Tên hiển thị cho unknown person
@@ -176,15 +195,18 @@ def validate_config():
         errors.append("DEFAULT_DETECTION_METHOD must be 'haar' or 'dnn'")
     
     # Kiểm tra recognition method
-    if DEFAULT_RECOGNITION_METHOD not in ['lbph', 'facenet']:
-        errors.append("DEFAULT_RECOGNITION_METHOD must be 'lbph' or 'facenet'")
+    if DEFAULT_RECOGNITION_METHOD not in ['lbph', 'openface', 'sface']:
+        errors.append("DEFAULT_RECOGNITION_METHOD must be 'lbph', 'openface', or 'sface'")
     
     # Kiểm tra thresholds
     if LBPH_CONFIDENCE_THRESHOLD < 0:
         errors.append("LBPH_CONFIDENCE_THRESHOLD must be >= 0")
     
-    if not (0 < FACENET_DISTANCE_THRESHOLD < 2):
-        errors.append("FACENET_DISTANCE_THRESHOLD should be between 0 and 2")
+    if not (0 < OPENFACE_DISTANCE_THRESHOLD < 2):
+        errors.append("OPENFACE_DISTANCE_THRESHOLD should be between 0 and 2")
+    
+    if not (0 < SFACE_DISTANCE_THRESHOLD < 2):
+        errors.append("SFACE_DISTANCE_THRESHOLD should be between 0 and 2")
     
     if errors:
         print("Configuration errors:")
@@ -207,7 +229,8 @@ if __name__ == "__main__":
     print(f"Default Detection Method: {DEFAULT_DETECTION_METHOD}")
     print(f"Default Recognition Method: {DEFAULT_RECOGNITION_METHOD}")
     print(f"LBPH Threshold: {LBPH_CONFIDENCE_THRESHOLD}")
-    print(f"FaceNet Threshold: {FACENET_DISTANCE_THRESHOLD}")
+    print(f"OpenFace Threshold: {OPENFACE_DISTANCE_THRESHOLD}")
+    print(f"SFace Threshold: {SFACE_DISTANCE_THRESHOLD}")
     print("=" * 50)
     
     # Tạo thư mục

@@ -133,9 +133,9 @@ class OpenFaceRecognizer:
             self.is_trained = True
             
             # Lưu vào database (sử dụng format tương tự FaceNet)
-            if self.database.save_facenet_embeddings(names, encodings):
+            if self.database.save_openface_embeddings(names, encodings):
                 print("[OpenFaceRecognizer] ✓ Training completed and encodings saved")
-                return True
+                return True 
             else:
                 print("[OpenFaceRecognizer] WARNING: Training completed but failed to save encodings")
                 return False
@@ -152,7 +152,7 @@ class OpenFaceRecognizer:
             bool: True nếu load thành công
         """
         try:
-            names, encodings = self.database.load_facenet_embeddings()
+            names, encodings = self.database.load_openface_embeddings()
             
             if names is None or encodings is None:
                 print("[OpenFaceRecognizer] ERROR: Failed to load encodings")

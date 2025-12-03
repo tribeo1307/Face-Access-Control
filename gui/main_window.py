@@ -1,38 +1,39 @@
 """
 Face Access Control - Main Window GUI
-Giao diện chính cho hệ thống Face Access Control sử dụng Tkinter
 """
 
 import tkinter as tk
 from tkinter import ttk, messagebox
 import cv2
 from PIL import Image, ImageTk
-import threading
 import time
+import threading
 from typing import Optional
-import config
-from modules import CameraManager, FaceDetector, Database
+
+from modules.camera import CameraManager
+from modules.detector import FaceDetector
 from modules.recognizer_lbph import LBPHRecognizer
-from modules.recognizer_openface import OpenFaceRecognizer, FACE_RECOGNITION_AVAILABLE
+from modules.recognizer_openface import OpenFaceRecognizer
+from modules.recognizer_sface import SFaceRecognizer
+from modules.database import Database
+import config
+
+# Check if face_recognition is available
+try:
+    import face_recognition
+    FACE_RECOGNITION_AVAILABLE = True
+except ImportError:
+    FACE_RECOGNITION_AVAILABLE = False
+
+# Check if sface is available
+SFACE_RECOGNITION_AVAILABLE = True  # Assume available since we have the module
 
 
 class MainWindow:
-    """
-    Main GUI Window cho Face Access Control
+    """Main GUI window for Face Access Control"""
     
-    Features:
-    - Video display real-time
-    - Method selection (LBPH/OpenFace)
-    - Threshold adjustment
-    - Start/Stop control
-    - Status display
-    - Access logs
-    """
-    
-    def __init__(self, root: tk.Tk):
+    def __init__(self, root):
         """
-        Khởi tạo Main Window
-        
         Args:
             root: Tkinter root window
         """
@@ -127,6 +128,9 @@ class MainWindow:
         if not FACE_RECOGNITION_AVAILABLE:
             openface_radio.config(state='disabled')
         
+        if not SFACE_RECOGNITION_AVAILABLE:
+            sface_radio.config(state='disabled')
+        
         ttk.Separator(control_frame, orient='horizontal').pack(fill='x', pady=10)
         
         # Detection method selection
@@ -213,10 +217,17 @@ class MainWindow:
         # Initialize OpenFace nếu có
         if FACE_RECOGNITION_AVAILABLE:
             self.recognizer_openface = OpenFaceRecognizer()
-            if self.database.model_exists('facenet'):  # Reuse same storage
+            if self.database.model_exists('openface'):
                 # Load OpenFace encodings
                 if self.recognizer_openface.load_encodings():
                     self._update_status("OpenFace encodings loaded", "green")
+        
+        # Initialize SFace nếu có
+        if SFACE_RECOGNITION_AVAILABLE:
+            self.recognizer_sface = SFaceRecognizer()
+            if self.database.model_exists('sface'):
+                if self.recognizer_sface.load_model():
+                    self._update_status("SFace model loaded", "green")
     
     def _start_recognition(self):
         """Bắt đầu recognition"""
@@ -228,7 +239,7 @@ class MainWindow:
                 messagebox.showerror("Error", "LBPH model not trained!\nPlease run train_lbph.py first.")
                 return
 
-        if method == 'openface':
+        elif method == 'openface':
             if not FACE_RECOGNITION_AVAILABLE:
                 messagebox.showerror("Error", "face_recognition library not available!")
                 return
@@ -289,8 +300,10 @@ class MainWindow:
                 # Recognize
                 if method == 'lbph':
                     name, score = self.recognizer_lbph.predict(face_roi)
-                else:  # openface
+                elif method == 'openface':
                     name, score = self.recognizer_openface.predict(face_roi)
+                else:  # sface
+                    name, score = self.recognizer_sface.predict(face_roi)
                 
                 # Determine access status
                 is_granted = (name != config.UNKNOWN_PERSON_NAME)
@@ -369,9 +382,9 @@ class MainWindow:
         if method == 'lbph':
             self.threshold_var.set(config.LBPH_CONFIDENCE_THRESHOLD)
             # LBPH: 0-100
-        else:  # openface
-            self.threshold_var.set(0.6)  # OpenFace default threshold
-            # OpenFace: 0-1
+        else:  # openface or sface
+            self.threshold_var.set(0.6)  # Default threshold
+            # OpenFace/SFace: 0-1
         
         self._update_status(f"Method: {method.upper()}", "blue")
     
@@ -392,6 +405,8 @@ class MainWindow:
             self.recognizer_lbph.update_threshold(threshold)
         elif method == 'openface' and self.recognizer_openface:
             self.recognizer_openface.update_threshold(threshold)
+        elif method == 'sface' and self.recognizer_sface:
+            self.recognizer_sface.update_threshold(threshold)
     
     def _view_logs(self):
         """Hiển thị access logs"""
