@@ -198,8 +198,8 @@ def validate_config():
     errors = []
 
     # Kiểm tra detection method
-    if DEFAULT_DETECTION_METHOD not in ["haar", "dnn"]:
-        errors.append("DEFAULT_DETECTION_METHOD must be 'haar' or 'dnn'")
+    if DEFAULT_DETECTION_METHOD not in ["haar", "dnn", "yunet"]:
+        errors.append("DEFAULT_DETECTION_METHOD must be 'haar', 'dnn', or 'yunet'")
 
     # Kiểm tra recognition method
     if DEFAULT_RECOGNITION_METHOD not in ["lbph", "openface", "sface"]:
