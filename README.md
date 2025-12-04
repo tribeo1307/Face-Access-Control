@@ -38,6 +38,8 @@ python main.py
 | **LBPH**     | 70-85%   | 30-40 FPS | Cần tốc độ    |
 | **OpenFace** | 85-95%   | 10-15 FPS | Cần chính xác |
 
+# Thiếu so sánh với SFace
+
 ## ⚙️ Config
 
 Chỉnh `config.py`:
